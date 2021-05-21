@@ -35,6 +35,12 @@ public class ProductController {
     @Autowired
     LikedUserProductRepository likedUserProductRepository;
 
+    @GetMapping("/all")
+    public List<Product> get_all() {
+        List<Product> list = productRepository.findAllByOrderByIdDesc();
+        list.retainAll(productRepository.findAllByActive(1));
+        return list;
+    }
     @PostMapping("/{code}")
     public Product upload_product_0(@RequestBody Product product, @PathVariable String code) {
 
@@ -42,16 +48,8 @@ public class ProductController {
         userProductRepository.save(new UserProduct(product, userRepository.findByPassword(code)));
         return userProductRepository.getByProductId(product.getId()).getProduct();
     }
-
-    @GetMapping("/all")
-    public List<Product> get_all() {
-        List<Product> list = productRepository.findAllByOrderByIdDesc();
-        list.retainAll(productRepository.findAllByActive(1));
-        return list;
-    }
-
     @GetMapping("/{text}/{description}/{location}/{category}/{min}/{max}")
-    public List<Product> likedProduct(@PathVariable int max, @PathVariable int min, @PathVariable int category, @PathVariable int location, @PathVariable int description, @PathVariable String text) {
+    public List<Product> searchProduct(@PathVariable int max, @PathVariable int min, @PathVariable int category, @PathVariable int location, @PathVariable int description, @PathVariable String text) {
         if (max == 0 && min == 0 && category == 0 && location == 0 && description == 0 && text.equals("0")) {
             return productService.findAll();
         }
@@ -59,9 +57,8 @@ public class ProductController {
         list.retainAll(productRepository.findAllByActive(1));
         return list;
     }
-
     @GetMapping("/search/{location}/{radius}")
-    public List<Product> likedProduct(@PathVariable int radius, @PathVariable String location) {
+    public List<Product> searchProductInRadius(@PathVariable int radius, @PathVariable String location) {
         List<Product> products = productRepository.findAllByActive(1);
         products.stream().filter(new Predicate<Product>() {
             @Override
@@ -70,7 +67,7 @@ public class ProductController {
                 float latitude_user = Float.parseFloat(location.split("!")[1]);
                 float longitude_product = Float.parseFloat(product.getLocation().split("/")[0]);
                 float latitude_product = Float.parseFloat(product.getLocation().split("/")[1]);
-
+                //TODO not working
                 double length = (2 * 6371 * (1 /
                         Math.sin(Math.sqrt(Math.sin((longitude_product - longitude_user) / 2) * Math.sin((longitude_product - longitude_user) / 2) + Math.cos(longitude_product) * Math.cos(longitude_user) * Math.sin((latitude_product - latitude_user) / 2) * Math.sin((latitude_product - latitude_user) / 2)))));
 
@@ -84,33 +81,12 @@ public class ProductController {
         }).collect(Collectors.toList());
         return products;
     }
-
-    @GetMapping("/liked/{code}")
-    public List<Product> getLikedProductsByUserCode(@PathVariable String code) {
-        return userService.getLikedProductsByUserCode(code);
-    }
     @DeleteMapping("/{code}/{id}")
     public Product delete_product(@PathVariable int id, @PathVariable String code) {
         if (userProductRepository.existsByUser_PasswordAndProduct_Id(code, id)) {
             productRepository.deleteById(id);
         }
         return null;
-    }
-    @GetMapping("active/{code}")
-    public List<Product> getActiveProductsByUserCode(@PathVariable String code) {
-        List<Product> active_products = new ArrayList<>();
-        for (UserProduct userProduct : userProductRepository.findAllByUser_PasswordAndProduct_Active(code, 1)) {
-            active_products.add(userProduct.getProduct());
-        }
-        return active_products;
-    }
-    @GetMapping("unactive/{code}")
-    public List<Product> getUnactiveProductsByUserCode(@PathVariable String code) {
-        List<Product> unactive_products = new ArrayList<>();
-        for (UserProduct userProduct : userProductRepository.findAllByUser_PasswordAndProduct_Active(code, 0)) {
-            unactive_products.add(userProduct.getProduct());
-        }
-        return unactive_products;
     }
     @PostMapping("activate/{code}/{id}")
     public Product activeProductByUserCodeAndId(@PathVariable String code, @PathVariable int id) {
@@ -126,9 +102,31 @@ public class ProductController {
 
         return productRepository.save(active_products);
     }
+
+    @GetMapping("unactive/{code}")
+    public List<Product> getUnactiveProductsByUserCode(@PathVariable String code) {
+        List<Product> unactive_products = new ArrayList<>();
+        for (UserProduct userProduct : userProductRepository.findAllByUser_PasswordAndProduct_Active(code, 0)) {
+            unactive_products.add(userProduct.getProduct());
+        }
+        return unactive_products;
+    }
+    @GetMapping("active/{code}")
+    public List<Product> getActiveProductsByUserCode(@PathVariable String code) {
+        List<Product> active_products = new ArrayList<>();
+        for (UserProduct userProduct : userProductRepository.findAllByUser_PasswordAndProduct_Active(code, 1)) {
+            active_products.add(userProduct.getProduct());
+        }
+        return active_products;
+    }
+
     @GetMapping("/liked/{code}/{id}")
     public boolean isProductLiked(@PathVariable int id, @PathVariable String code) {
         return likedUserProductRepository.existsByUser_PasswordAndProduct_Id(code, id);
+    }
+    @GetMapping("/liked/{code}")
+    public List<Product> getLikedProductsByUserCode(@PathVariable String code) {
+        return userService.getLikedProductsByUserCode(code);
     }
     @PostMapping("/like/{code}/{id}")
     public boolean likeProduct(@PathVariable int id, @PathVariable String code) {

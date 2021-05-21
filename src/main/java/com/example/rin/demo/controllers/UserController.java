@@ -82,7 +82,7 @@ public class UserController {
     }
 
     @PostMapping("/email/{code}/{user_id}/{product_id}/{text}")
-    public boolean send_email(@PathVariable String code, @PathVariable String user_id, @PathVariable String product_id, @PathVariable String text) {
+    public boolean send_email(@PathVariable String code, @PathVariable int user_id, @PathVariable int product_id, @PathVariable String text) {
         //TODO send email
         return true;
     }
