@@ -82,11 +82,11 @@ public class ProductController {
         return products;
     }
     @DeleteMapping("/{code}/{id}")
-    public Product delete_product(@PathVariable int id, @PathVariable String code) {
+    public Boolean delete_product(@PathVariable int id, @PathVariable String code) {
         if (userProductRepository.existsByUser_PasswordAndProduct_Id(code, id)) {
             productRepository.deleteById(id);
         }
-        return null;
+        return true;
     }
     @PostMapping("activate/{code}/{id}")
     public Product activeProductByUserCodeAndId(@PathVariable String code, @PathVariable int id) {
