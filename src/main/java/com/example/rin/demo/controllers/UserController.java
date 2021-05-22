@@ -37,13 +37,15 @@ public class UserController {
     @Autowired
     LikedUserProductRepository likedUserProductRepository;
 
-    @PostMapping("/{name}/{email}/{password}/{phone}")
-    public User upload_user(@PathVariable String name,
+    @PostMapping("{id}/{name}/{email}/{password}/{phone}")
+    public User upload_user(@PathVariable Integer id,
+                            @PathVariable String name,
                             @PathVariable String email,
                             @PathVariable String password,
                             @PathVariable String phone) {
 
         User user = new User();
+        user.setId(id);
         user.setName(name);
         user.setEmail(email);
         user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
