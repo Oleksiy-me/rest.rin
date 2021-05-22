@@ -98,7 +98,6 @@ public class UserController {
         return user;
     }
 
-
     @PostMapping("/password/restore/{code}")
     public boolean password_restore(@PathVariable String code) {
         //TODO restore password
