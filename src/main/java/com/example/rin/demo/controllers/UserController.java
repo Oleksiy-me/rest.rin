@@ -67,7 +67,7 @@ public class UserController {
         return userService.createUser(user);
     }
 
-    @PutMapping("email/{code}/{phone}")
+    @PutMapping("phone/{code}/{phone}")
     public User change_user_phone(@PathVariable String phone,
                                   @PathVariable String code) {
         User user = userRepository.findByPassword(code);
@@ -109,6 +109,5 @@ public class UserController {
         //TODO send email
         return true;
     }
-
 
 }
