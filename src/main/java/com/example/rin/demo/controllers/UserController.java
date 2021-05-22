@@ -62,6 +62,8 @@ public class UserController {
     @PutMapping("email/{code}/{email}")
     public User change_user_email(@PathVariable String email,
                                   @PathVariable String code) {
+        System.out.println(code);
+        System.out.println(userRepository.findByPassword("$2a$10$CiaoATaMkRCk0hagf9.kOu4xKD3whVhaCZgSDY5ETA6u5pMPM6bKa"));
         User user = userRepository.findByPassword(code);
         user.setEmail(email);
         return userService.createUser(user);
