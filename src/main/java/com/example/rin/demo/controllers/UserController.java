@@ -37,18 +37,40 @@ public class UserController {
     @Autowired
     LikedUserProductRepository likedUserProductRepository;
 
-    @PostMapping("{id}/{name}/{email}/{password}/{phone}")
-    public User upload_user(@PathVariable Integer id,
-                            @PathVariable String name,
+    @PostMapping("{name}/{email}/{password}/{phone}")
+    public User upload_user(@PathVariable String name,
                             @PathVariable String email,
                             @PathVariable String password,
                             @PathVariable String phone) {
 
         User user = new User();
-        user.setId(id);
         user.setName(name);
         user.setEmail(email);
         user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+        user.setPhone(phone);
+        return userService.createUser(user);
+    }
+
+    @PutMapping("name/{code}/{name}")
+    public User change_user_name(@PathVariable String name,
+                                 @PathVariable String code) {
+        User user = userRepository.findByPassword(code);
+        user.setName(name);
+        return userService.createUser(user);
+    }
+
+    @PutMapping("email/{code}/{email}")
+    public User change_user_email(@PathVariable String email,
+                                  @PathVariable String code) {
+        User user = userRepository.findByPassword(code);
+        user.setEmail(email);
+        return userService.createUser(user);
+    }
+
+    @PutMapping("email/{code}/{phone}")
+    public User change_user_phone(@PathVariable String phone,
+                                  @PathVariable String code) {
+        User user = userRepository.findByPassword(code);
         user.setPhone(phone);
         return userService.createUser(user);
     }
