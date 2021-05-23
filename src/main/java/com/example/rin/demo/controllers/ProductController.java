@@ -42,10 +42,13 @@ public class ProductController {
         return list;
     }
     @PostMapping("/{code}")
-    public Product upload_product_0(@RequestBody Product product, @PathVariable String code) {
-
-        product = productRepository.save(product);
-        userProductRepository.save(new UserProduct(product, userRepository.findByPassword(code)));
+    public Product upload_product(@RequestBody Product product, @PathVariable String code) {
+        if(product.getId()==0){
+            product = productRepository.save(product);
+            userProductRepository.save(new UserProduct(product, userRepository.findByPassword(code)));
+        }else{
+            product = productRepository.save(product);
+        }
         return userProductRepository.getByProductId(product.getId()).getProduct();
     }
     @GetMapping("/{text}/{description}/{location}/{category}/{min}/{max}")
