@@ -56,7 +56,7 @@ public class UserController {
                                  @PathVariable String code) {
         User user = userRepository.findByPassword(code);
         user.setName(name);
-        return userService.createUser(user);
+        return userRepository.save(user);
     }
 
     @PutMapping("email/{code}/{email}")
