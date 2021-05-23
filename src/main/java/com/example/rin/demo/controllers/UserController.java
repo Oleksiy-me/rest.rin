@@ -62,9 +62,9 @@ public class UserController {
     @PutMapping("email/{code}/{email}")
     public User change_user_email(@PathVariable String email,
                                   @PathVariable String code) {
-       User user = userRepository.findByPassword(code);
+        User user = userRepository.findByPassword(code);
         user.setEmail(email);
-        return userService.createUser(user);
+        return userRepository.save(user);
     }
 
     @PutMapping("phone/{code}/{phone}")
@@ -72,7 +72,7 @@ public class UserController {
                                   @PathVariable String code) {
         User user = userRepository.findByPassword(code);
         user.setPhone(phone);
-        return userService.createUser(user);
+        return userRepository.save(user);
     }
 
     @GetMapping("/{code}")
