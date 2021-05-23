@@ -87,6 +87,8 @@ public class ProductController {
     @DeleteMapping("/{code}/{id}")
     public Boolean delete_product(@PathVariable int id, @PathVariable String code) {
         if (userProductRepository.existsByUser_PasswordAndProduct_Id(code, id)) {
+            likedUserProductRepository.deleteAllByProduct_Id(id);
+            userProductRepository.deleteByUser_PasswordAndProduct_Id(code,id);
             productRepository.deleteById(id);
         }
         return true;

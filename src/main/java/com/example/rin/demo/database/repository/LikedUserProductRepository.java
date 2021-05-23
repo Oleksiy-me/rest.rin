@@ -10,4 +10,5 @@ public interface LikedUserProductRepository extends JpaRepository<LikedUserProdu
     List<LikedUserProduct> findAllByUser_PasswordAndProduct_Active(String password,int active);
     Boolean existsByUser_PasswordAndProduct_Id(String password, int id);
     void removeByUser_PasswordAndProduct_Id(String password, int id);
+    void deleteAllByProduct_Id(Integer product_id);
 }
