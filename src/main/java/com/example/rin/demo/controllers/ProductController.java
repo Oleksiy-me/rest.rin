@@ -12,6 +12,7 @@ import com.example.rin.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class ProductController {
         list.retainAll(productRepository.findAllByActive(1));
         return list;
     }
+
     @PostMapping("/{code}")
     public Product upload_product(@RequestBody Product product, @PathVariable String code) {
         if(product.getId()==0){
@@ -84,11 +86,13 @@ public class ProductController {
         }).collect(Collectors.toList());
         return products;
     }
+
     @DeleteMapping("/{code}/{id}")
+    @Transactional
     public Boolean delete_product(@PathVariable int id, @PathVariable String code) {
         if (userProductRepository.existsByUser_PasswordAndProduct_Id(code, id)) {
+            userProductRepository.deleteAllByUser_PasswordAndProduct_Id(code,id);
             likedUserProductRepository.deleteAllByProduct_Id(id);
-            userProductRepository.deleteByUser_PasswordAndProduct_Id(code,id);
             productRepository.deleteById(id);
         }
         return true;

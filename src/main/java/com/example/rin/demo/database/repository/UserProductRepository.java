@@ -13,7 +13,7 @@ public interface UserProductRepository extends JpaRepository<UserProduct, Intege
     List<UserProduct> getAllByUser_Id(int id);
 
     Boolean existsByUser_PasswordAndProduct_Id(String password, int id);
-    Boolean deleteByUser_PasswordAndProduct_Id(String password, int id);
+    void deleteAllByUser_PasswordAndProduct_Id(String password, int id);
     UserProduct getByProductId(int id);
 
     UserProduct getByProductIdAndUser_Password(int id, String password);
