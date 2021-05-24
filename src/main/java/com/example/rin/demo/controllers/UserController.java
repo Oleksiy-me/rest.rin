@@ -11,6 +11,8 @@ import com.example.rin.demo.database.repository.UserRepository;
 import com.example.rin.demo.services.UserService;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -36,6 +38,9 @@ public class UserController {
 
     @Autowired
     LikedUserProductRepository likedUserProductRepository;
+
+    @Autowired
+    private JavaMailSender emailSender;
 
     @PostMapping("{name}/{email}/{password}/{phone}")
     public User upload_user(@PathVariable String name,
@@ -104,9 +109,14 @@ public class UserController {
         return true;
     }
 
-    @PostMapping("/email/{code}/{user_id}/{product_id}/{text}")
-    public boolean send_email(@PathVariable String code, @PathVariable int user_id, @PathVariable int product_id, @PathVariable String text) {
-        //TODO send email
+    @PostMapping("/email")
+    public boolean send_email() {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("maksymenko1111@gmail.com");
+        message.setTo("dmitriz156@gmail.com");
+        message.setSubject("dima loh");
+        message.setText("Naivsya bloh");
+        emailSender.send(message);
         return true;
     }
 
