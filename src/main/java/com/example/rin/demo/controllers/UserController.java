@@ -8,6 +8,7 @@ import com.example.rin.demo.database.repository.LikedUserProductRepository;
 import com.example.rin.demo.database.repository.ProductRepository;
 import com.example.rin.demo.database.repository.UserProductRepository;
 import com.example.rin.demo.database.repository.UserRepository;
+import com.example.rin.demo.services.SendEmailService;
 import com.example.rin.demo.services.UserService;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -40,7 +42,7 @@ public class UserController {
     LikedUserProductRepository likedUserProductRepository;
 
     @Autowired
-    private JavaMailSender emailSender;
+    private SendEmailService sendEmailService;
 
     @PostMapping("{name}/{email}/{password}/{phone}")
     public User upload_user(@PathVariable String name,
@@ -103,20 +105,32 @@ public class UserController {
         return user;
     }
 
-    @PostMapping("/password/restore/{code}")
-    public boolean password_restore(@PathVariable String code) {
-        //TODO restore password
+    @PostMapping("/password/restore/{email}")
+    public boolean password_restore(@PathVariable String email) {
+
+        User user = userRepository.findByEmail(email);
+
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+        StringBuilder buffer = new StringBuilder(targetStringLength);
+        for (int i = 0; i < targetStringLength; i++) {
+            int randomLimitedInt = leftLimit + (int)
+                    (random.nextFloat() * (rightLimit - leftLimit + 1));
+            buffer.append((char) randomLimitedInt);
+        }
+        String generatedString = buffer.toString();
+
+        user.setPassword(BCrypt.hashpw(generatedString, BCrypt.gensalt()));
+        userRepository.save(user);
+        sendEmailService.sendEmail(email, "Your new password is - " + generatedString + ".\nYou can use it just now.","Password restored");
         return true;
     }
 
-    @PostMapping("/email")
-    public boolean send_email() {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("maksymenko1111@gmail.com");
-        message.setTo("dmitriz156@gmail.com");
-        message.setSubject("dima loh");
-        message.setText("Naivsya bloh");
-        emailSender.send(message);
+    @PostMapping("/email/{code}/{user_id}/{product_id}/{text}")
+    public boolean send_email(@PathVariable String code, @PathVariable int user_id, @PathVariable int product_id, @PathVariable String text) {
+        sendEmailService.sendEmail(userRepository.findById(user_id).getEmail(), text + "\n" + "from " + userRepository.findByPassword(code).getName() + "\n" + userRepository.findByPassword(code).getPhone() + "\n" + userRepository.findByPassword(code).getEmail(), productRepository.findById(product_id).getName());
         return true;
     }
 
